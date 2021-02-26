@@ -73,6 +73,34 @@ deploy: compile
 	# Copy extra directories if any
 # 	(foreach EXTRA_DIR,(EXTRA_DIRS), cp -R (EXTRA_DIR) (HOME)/(QGISDIR)/python/plugins/(PLUGINNAME)/;)
 
+# The dclean target removes compiled python files from plugin directory
+# also deletes any .git entry
+dclean:
+	@echo
+	@echo "-----------------------------------"
+	@echo "Removing any compiled python files."
+	@echo "-----------------------------------"
+	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "*.pyc" -delete
+	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname ".git" -prune -exec rm -Rf {} \;
+
+derase:
+	@echo
+	@echo "-------------------------"
+	@echo "Removing deployed plugin."
+	@echo "-------------------------"
+	rm -Rf $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
+
+zip: deploy dclean
+	@echo
+	@echo "---------------------------"
+	@echo "Creating plugin zip bundle."
+	@echo "---------------------------"
+	# The zip target deploys the plugin and creates a zip file with the deployed
+	# content. You can then upload the zip file on http://plugins.qgis.org
+	rm -f $(PLUGINNAME).zip
+	cd $(HOME)/$(QGISDIR)/python/plugins; zip -9r $(CURDIR)/$(PLUGINNAME).zip $(PLUGINNAME)
+
+
 package: compile
 	# Create a zip package of the plugin named $(PLUGINNAME).zip.
 	# This requires use of git (your plugin development directory must be a

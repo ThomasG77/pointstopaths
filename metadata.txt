@@ -10,7 +10,7 @@
 
 [general]
 name=PointsToPaths
-qgisMinimumVersion=2.0
+qgisMinimumVersion=3.0
 description=Converts points to lines with verticies grouped by a text or integer field and ordered by an integer or date string field. Based on PointsToOne, but intended for wildlife tracking data.
 version=0.4
 author=Cyrus Hiatt

@@ -20,6 +20,7 @@
  ***************************************************************************/
  This script initializes the plugin, making it known to QGIS.
 """
+from __future__ import absolute_import
 def name():
     return "Points To Paths"
 def description():
@@ -32,5 +33,5 @@ def qgisMinimumVersion():
     return "2.0"
 def classFactory(iface):
     # load PointsToPaths class from file PointsToPaths
-    from pointstopaths import PointsToPaths
+    from .pointstopaths import PointsToPaths
     return PointsToPaths(iface)

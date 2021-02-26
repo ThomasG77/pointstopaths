@@ -19,12 +19,16 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from builtins import object
+from PyQt5.QtCore import QVariant
 from qgis.core import *
 from datetime import datetime
 from datetime import timedelta
 
-class ProcessFeatures():
+class ProcessFeatures(object):
 
     def __init__(self, layer, fname, order_attr_name=None, order_attr_format=None, group_attr_name=None):
         self.layer = layer
@@ -35,7 +39,8 @@ class ProcessFeatures():
 
     def generatePointDict(self):
         if not self.layer.isValid():
-            print "Layer failed to load!"
+            # fix_print_with_import
+            print("Layer failed to load!")
         else:
             QgsMapLayerRegistry.instance().addMapLayer(self.layer)
             self.provider = self.layer.dataProvider()
@@ -66,7 +71,7 @@ class ProcessFeatures():
                         except:
                             pass
                     if not hasattr(self, 'order_value'):
-                        raise ValueError, 'Order field is not an integer type or date format is invalid'
+                        raise ValueError('Order field is not an integer type or date format is invalid')
                     if attr == self.group_attr_value:
                         try:
                             self.feat_dict[attr].append((self.order_value, self.coords[0], self.coords[1]))
@@ -110,8 +115,9 @@ class ProcessFeatures():
         self.fields.append(QgsField("end", QVariant.String))
         self.writer = QgsVectorFileWriter(self.fname, "CP1250", self.fields, QGis.WKBLineString, crs, "ESRI Shapefile")
         if self.writer.hasError() != QgsVectorFileWriter.NoError:
-            print "Error when creating shapefile: ", self.writer.hasError()
-        for (ky, vals) in points_dict.iteritems():
+            # fix_print_with_import
+            print("Error when creating shapefile: ", self.writer.hasError())
+        for (ky, vals) in list(points_dict.items()):
             if len(vals) > 1:
                 vals.sort()
                 self.gapped_vals = self.findGaps(vals, gap)

@@ -19,14 +19,18 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from builtins import object
+# from PyQt4.QtCore import *
+# from PyQt4.QtGui import *
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QAction
 from qgis.core import *
 # Initialize Qt resources from file resources.py
-import resources
+from . import resources
 # Import the code for the dialog
-from pointstopathsdialog import PointsToPathsDialog
+from .pointstopathsdialog import PointsToPathsDialog
 
 
 class PointsToPaths(object):
@@ -40,7 +44,7 @@ class PointsToPaths(object):
         self.action = QAction(QIcon(":/plugins/pointstopaths/icon.png"),
                               "Points to Paths", self.iface.mainWindow())
         # connect the action to the run method
-        QObject.connect(self.action, SIGNAL("triggered()"), self.run)
+        self.action.triggered.connect(self.run)
 
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.action)

@@ -19,31 +19,36 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4 import QtCore, QtGui
-from ui_pointstopaths import Ui_PointsToPaths
-from processfeatures import ProcessFeatures
+from __future__ import absolute_import
+import os
+
+from builtins import str
+from qgis.PyQt import QtCore, QtGui, QtWidgets, uic
+from .ui_pointstopaths import Ui_PointsToPaths
+from .processfeatures import ProcessFeatures
 from qgis.core import *
 from qgis.gui import *
-from os.path import splitext
-from os.path import basename
-from os.path import dirname
+
+# This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
+FORM_CLASS, _ = uic.loadUiType(os.path.join(
+    os.path.dirname(__file__), 'pointstopaths_dialog_base.ui'))
 
 # adopted from 'points2one', Copyright (C) 2010 Pavol Kapusta & Goyo Diaz
-class PointsToPathsDialog(QtGui.QDialog,Ui_PointsToPaths):
+class PointsToPathsDialog(QtWidgets.QDialog,FORM_CLASS):
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         # Set up the user interface from Designer.
-        self.ui = Ui_PointsToPaths()
+        self.ui = FORM_CLASS()
         self.ui.setupUi(self)
-        QtCore.QObject.connect( self.ui.btnBrowse, QtCore.SIGNAL( "clicked()" ), self.outFile )
-        QtCore.QObject.connect( self.ui.inShape, QtCore.SIGNAL( "currentIndexChanged(QString)" ), self.checkLayer )
-        QtCore.QObject.connect( self.ui.inShape, QtCore.SIGNAL( "currentIndexChanged(QString)" ), self.update )
+        self.ui.btnBrowse.clicked.connect(self.outFile)
+        self.ui.inShape.currentIndexChanged.connect(self.checkLayer)
+        self.ui.inShape.currentIndexChanged.connect(self.update)
         self.manageGui()
         self.show()
 
     # adopted from 'points2one', Copyright (C) 2010 Pavol Kapusta & Goyo Diaz
     def checkLayer(self):
-        inputLayer = unicode( self.ui.inShape.currentText() )
+        inputLayer = str( self.ui.inShape.currentText() )
         if inputLayer != "":
             changedLayer = getVectorLayerByName( inputLayer )
 
@@ -51,7 +56,7 @@ class PointsToPathsDialog(QtGui.QDialog,Ui_PointsToPaths):
     def update(self):
         self.ui.orderField.clear()
         self.ui.attrField.clear()
-        inputLayer = unicode( self.ui.inShape.currentText() )
+        inputLayer = str( self.ui.inShape.currentText() )
         if inputLayer != "":
             changedLayer = getVectorLayerByName( inputLayer )
             changedField = changedLayer.dataProvider().fields()
@@ -60,12 +65,12 @@ class PointsToPathsDialog(QtGui.QDialog,Ui_PointsToPaths):
                 self.ui.orderField.addItem(name)
                 self.ui.attrField.addItem(name)
 
-    # Return list point layer names in QgsMapLayerRegistry
+    # Return list point layer names in QgsProject
     # adopted from 'points2one', Copyright (C) 2010 Pavol Kapusta & Goyo Diaz
     def manageGui(self):
         myList = []
         self.ui.inShape.clear()
-        myList = getLayerNames( [ QGis.Point ] )
+        myList = getLayerNames( [ QgsWkbTypes.Point ] )
         self.ui.inShape.addItems( myList )
         return
 
@@ -82,19 +87,19 @@ class PointsToPathsDialog(QtGui.QDialog,Ui_PointsToPaths):
         elif self.getOutFilePath() == "":
             QtGui.QMessageBox.warning( self, "PointsToPaths", self.tr( "Please specify output shapefile" ) )
         else:
-            inputLayer = unicode( self.ui.inShape.currentText() )
+            inputLayer = str( self.ui.inShape.currentText() )
             layer = getVectorLayerByName( inputLayer )
             provider = layer.dataProvider()
             processor = ProcessFeatures(layer, self.getOutFilePath(), self.ui.orderField.currentText(), self.getTimeFormat(), self.ui.attrField.currentText())
             points = processor.generatePointDict()
             processor.writeShapefile(points, layer.crs(), self.getGapPeriod(), self.getLinesPerVertex())
-            message = unicode(self.tr('Created output shapefile:'))
-            message = '\n'.join([message, unicode(self.getOutFilePath())])
-            message = '\n'.join([message,unicode(self.tr('Would you like to add the new layer to the TOC?'))])
+            message = str(self.tr('Created output shapefile:'))
+            message = '\n'.join([message, str(self.getOutFilePath())])
+            message = '\n'.join([message,str(self.tr('Would you like to add the new layer to the TOC?'))])
             addToTOC = QtGui.QMessageBox.question(self, "PointsToPaths", message,
                 QtGui.QMessageBox.Yes, QtGui.QMessageBox.No, QtGui.QMessageBox.NoButton)
             if addToTOC == QtGui.QMessageBox.Yes:
-                addShapeToCanvas(unicode(self.getOutFilePath()))
+                addShapeToCanvas(str(self.getOutFilePath()))
 
 
     # adopted from 'points2one', Copyright (C) 2010 Pavol Kapusta & Goyo Diaz
@@ -121,7 +126,7 @@ class PointsToPathsDialog(QtGui.QDialog,Ui_PointsToPaths):
             try:
                 gap = float(gap_string)
             except:
-                raise ValueError, 'Gap period not a numeric value'
+                raise ValueError('Gap period not a numeric value')
         else:
             gap = None
         return gap
@@ -133,27 +138,27 @@ class PointsToPathsDialog(QtGui.QDialog,Ui_PointsToPaths):
 # Return QgsVectorLayer from a layer name ( as string )
 # adopted from 'fTools Plugin', Copyright (C) 2009  Carson Farmer
 def getVectorLayerByName( myName ):
-    layermap = QgsMapLayerRegistry.instance().mapLayers()
-    for name, layer in layermap.iteritems():
+    layermap = QgsProject.instance().mapLayers()
+    for name, layer in list(layermap.items()):
         if layer.type() == QgsMapLayer.VectorLayer and layer.name() == myName:
             if layer.isValid():
                 return layer
             else:
                 return None
 
-# Return list of names of all layers in QgsMapLayerRegistry
+# Return list of names of all layers in QgsProject
 # adopted from 'fTools Plugin', Copyright (C) 2009  Carson Farmer
 def getLayerNames( vTypes ):
-    layermap = QgsMapLayerRegistry.instance().mapLayers()
+    layermap = QgsProject.instance().mapLayers()
     layerlist = []
     if vTypes == "all":
-        for name, layer in layermap.iteritems():
-            layerlist.append( unicode( layer.name() ) )
+        for name, layer in list(layermap.items()):
+            layerlist.append( str( layer.name() ) )
     else:
-        for name, layer in layermap.iteritems():
+        for name, layer in list(layermap.items()):
             if layer.type() == QgsMapLayer.VectorLayer:
-                if layer.geometryType() in vTypes:
-                    layerlist.append( unicode( layer.name() ) )
+                if layer.wkbType() in vTypes:
+                    layerlist.append( str( layer.name() ) )
     return layerlist
 
 # adopted from 'points2one', Copyright (C) 2010 Pavol Kapusta & Goyo Diaz
@@ -163,25 +168,25 @@ def saveDialog(parent):
     outDir = settings.value(key)
     filter = 'Shapefiles (*.shp)'
     outFilePath = QtGui.QFileDialog.getSaveFileName(parent, parent.tr('Save output shapefile'), outDir, filter)
-    outFilePath = unicode(outFilePath)
+    outFilePath = str(outFilePath)
     if outFilePath:
-        root, ext = splitext(outFilePath)
+        root, ext = os.path.splitext(outFilePath)
         if ext.upper() != '.SHP':
             outFilePath = '%s.shp' % outFilePath
-        outDir = dirname(outFilePath)
+        outDir = os.path.dirname(outFilePath)
         settings.setValue(key, outDir)
     return outFilePath
 
 # Convinience function to add a vector layer to canvas based on input shapefile path ( as string )
 # adopted from 'fTools Plugin', Copyright (C) 2009  Carson Farmer
 def addShapeToCanvas(shapeFilePath):
-    layerName = basename(shapeFilePath)
-    root, ext = splitext(layerName)
+    layerName = os.path.basename(shapeFilePath)
+    root, ext = os.path.splitext(layerName)
     if ext == '.shp':
         layerName = root
     vlayer_new = QgsVectorLayer(shapeFilePath, layerName, "ogr")
     if vlayer_new.isValid():
-        QgsMapLayerRegistry.instance().addMapLayer(vlayer_new)
+        QgsProject.instance().addMapLayer(vlayer_new)
         return True
     else:
         return False
@@ -189,4 +194,3 @@ def addShapeToCanvas(shapeFilePath):
 # adopted from 'points2one', Copyright (C) 2010 Pavol Kapusta & Goyo Diaz
 class FileDeletionError(Exception):
     pass
-

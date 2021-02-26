@@ -229,7 +229,7 @@ p, li { white-space: pre-wrap; }
         </rect>
        </property>
        <property name="text">
-        <string>This information was acquired from the Python Software Foundation, v2.7 Documentation. For more details about Python date formatting, visit:
+        <string>This information was acquired from the Python Software Foundation, v3.9 Documentation. For more details about Python date formatting, visit:
 
 http://docs.python.org/library/datetime.html</string>
        </property>

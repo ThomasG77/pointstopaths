@@ -24,8 +24,8 @@ from __future__ import absolute_import
 from builtins import object
 # from PyQt4.QtCore import *
 # from PyQt4.QtGui import *
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction
 from qgis.core import *
 # Initialize Qt resources from file resources.py
 from . import resources

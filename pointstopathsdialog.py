@@ -24,7 +24,6 @@ import os
 
 from builtins import str
 from qgis.PyQt import QtCore, QtGui, QtWidgets, uic
-from .ui_pointstopaths import Ui_PointsToPaths
 from .processfeatures import ProcessFeatures
 from qgis.core import *
 from qgis.gui import *
@@ -76,16 +75,15 @@ class PointsToPathsDialog(QtWidgets.QDialog,FORM_CLASS):
 
     # portions adopted from 'points2one', Copyright (C) 2010 Pavol Kapusta & Goyo Diaz
     def accept(self):
-        QtGui
         if self.ui.inShape.currentText() == "":
-            QtGui.QMessageBox.warning( self, "PointsToPaths", self.tr( "Please specify an input layer" ) )
+            QtWidgets.QMessageBox.warning( self, "PointsToPaths", self.tr( "Please specify an input layer" ) )
             return
         elif self.ui.attrField.currentText() == "":
-            QtGui.QMessageBox.warning( self, "PointsToPaths", self.tr( "Please define specific input field" ) )
+            QtWidgets.QMessageBox.warning( self, "PointsToPaths", self.tr( "Please define specific input field" ) )
         elif self.ui.orderField.currentText() == "":
-            QtGui.QMessageBox.warning( self, "PointsToPaths", self.tr( "Please define specific input field" ) )
+            QtWidgets.QMessageBox.warning( self, "PointsToPaths", self.tr( "Please define specific input field" ) )
         elif self.getOutFilePath() == "":
-            QtGui.QMessageBox.warning( self, "PointsToPaths", self.tr( "Please specify output shapefile" ) )
+            QtWidgets.QMessageBox.warning( self, "PointsToPaths", self.tr( "Please specify output shapefile" ) )
         else:
             inputLayer = str( self.ui.inShape.currentText() )
             layer = getVectorLayerByName( inputLayer )
@@ -96,9 +94,9 @@ class PointsToPathsDialog(QtWidgets.QDialog,FORM_CLASS):
             message = str(self.tr('Created output shapefile:'))
             message = '\n'.join([message, str(self.getOutFilePath())])
             message = '\n'.join([message,str(self.tr('Would you like to add the new layer to the TOC?'))])
-            addToTOC = QtGui.QMessageBox.question(self, "PointsToPaths", message,
-                QtGui.QMessageBox.Yes, QtGui.QMessageBox.No, QtGui.QMessageBox.NoButton)
-            if addToTOC == QtGui.QMessageBox.Yes:
+            addToTOC = QtWidgets.QMessageBox.question(self, "PointsToPaths", message,
+                QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.NoButton)
+            if addToTOC == QtWidgets.QMessageBox.Yes:
                 addShapeToCanvas(str(self.getOutFilePath()))
 
 
@@ -167,7 +165,7 @@ def saveDialog(parent):
     key = '/UI/lastShapefileDir'
     outDir = settings.value(key)
     filter = 'Shapefiles (*.shp)'
-    outFilePath = QtGui.QFileDialog.getSaveFileName(parent, parent.tr('Save output shapefile'), outDir, filter)
+    outFilePath = QtWidgets.QFileDialog.getSaveFileName(parent, parent.tr('Save output shapefile'), outDir, filter)
     outFilePath = str(outFilePath)
     if outFilePath:
         root, ext = os.path.splitext(outFilePath)

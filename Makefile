@@ -21,7 +21,7 @@
 
 PLUGINNAME = pointstopaths
 
-PY_FILES = pointstopaths.py pointstopathsdialog.py __init__.py
+PY_FILES = pointstopaths.py processfeatures.py pointstopathsdialog.py __init__.py
 
 EXTRAS = metadata.txt icon.png
 

@@ -95,7 +95,7 @@ class PointsToPathsDialog(QtWidgets.QDialog,FORM_CLASS):
             message = '\n'.join([message, str(self.getOutFilePath())])
             message = '\n'.join([message,str(self.tr('Would you like to add the new layer to the TOC?'))])
             addToTOC = QtWidgets.QMessageBox.question(self, "PointsToPaths", message,
-                QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.NoButton)
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.NoButton)
             if addToTOC == QtWidgets.QMessageBox.Yes:
                 addShapeToCanvas(str(self.getOutFilePath()))
 
@@ -164,9 +164,13 @@ def saveDialog(parent):
     settings = QtCore.QSettings()
     key = '/UI/lastShapefileDir'
     outDir = settings.value(key)
-    filter = 'Shapefiles (*.shp)'
-    outFilePath = QtWidgets.QFileDialog.getSaveFileName(parent, parent.tr('Save output shapefile'), outDir, filter)
-    outFilePath = str(outFilePath)
+    outFilePath = QtWidgets.QFileDialog.getSaveFileName(
+        parent,
+        parent.tr('Save output shapefile'),
+        outDir,
+        parent.tr('Shapefiles (*.shp)')
+    )
+    outFilePath, filetype = outFilePath
     if outFilePath:
         root, ext = os.path.splitext(outFilePath)
         if ext.upper() != '.SHP':
